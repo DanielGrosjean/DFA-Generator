@@ -143,7 +143,7 @@ def generateDFA():
             return
         
     for key, val in transitions.items():
-        if val == "" or val not in alphabet:
+        if val == "" or val not in states:
             messagebox.showwarning(
                 title="ERROR",
                 message="All of the entries in the transition table must be filled and be valid"
