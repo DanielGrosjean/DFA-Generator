@@ -1,6 +1,7 @@
 import tkinter
 from tkinter import ttk
 from tkinter import messagebox
+from graphviz import Digraph
 
 # Global Variables
 MAINBACKGROUND = "#2C2D2D"
@@ -59,13 +60,6 @@ def generateTransitionTable():
         )
         return
     
-    if len(states) > 10 or len(alphabet) > 10:
-        messagebox.showwarning(
-            title="ERROR",
-            message="Please limit your amount of states and/or alphabet to only 10 each"
-        )
-        return
-
     # Top-left empty cell
     tkinter.Label(
         transitionTableFrame,
@@ -142,7 +136,7 @@ def generateDFA():
             )
             return
         
-    for key, val in transitions.items():
+    for _ , val in transitions.items():
         if val == "" or val not in states:
             messagebox.showwarning(
                 title="ERROR",
@@ -150,6 +144,22 @@ def generateDFA():
             )
             return
 
+    dot = Digraph(format="png")
+    dot.attr(rankdir="LR")
+
+    for state in states:
+        if state in acceptStates:
+            dot.node(state, shape="doublecircle")
+        else:
+            dot.node(state, shape="circle")
+
+    dot.node("", shape="none")  # invisible node
+    dot.edge("", startState)
+
+    for (state, symbol), next_state in transitions.items():
+        dot.edge(state, next_state, label=symbol)
+
+    dot.render("dfa", view=True)
 
 # Initializes main application window
 window = tkinter.Tk()
@@ -177,7 +187,6 @@ titleLabel = tkinter.Label(
 headerFrame.grid(row = 0, column = 0)
 titleLabel.grid(row = 0, column = 0)
 subtitleLabel = createStandardLabel(headerFrame, "Separate characters with commas (,)", 1, 0, sticky = "ew")
-subtitleLabel2 = createStandardLabel(headerFrame, "Limit the amount of states and alphabet characters to 10", 2, 0)
 
 # Initialize Formal Inputs Section
 inputsFrame = createStandardFrame(frame)
