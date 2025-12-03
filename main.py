@@ -3,11 +3,11 @@ from tkinter import ttk
 from tkinter import messagebox
 
 # Global Variables
-MAINBACKGROUND = "#13265C"
+MAINBACKGROUND = "#2C2D2D"
 transitionEntries = {}
 
 # Helper Functions
-def createStandardLabel(parent, text, row, column):
+def createStandardLabel(parent, text, row, column, sticky = "e"):
     label = tkinter.Label(
         parent,
         text = text,
@@ -16,7 +16,7 @@ def createStandardLabel(parent, text, row, column):
         font = ("Courier New", 10),
         pady = 10
     )
-    label.grid(row = row, column = column, sticky = "e")
+    label.grid(row = row, column = column, sticky = sticky)
     return label
 
 def createStandardEntry(parent, row, column):
@@ -56,6 +56,13 @@ def generateTransitionTable():
         messagebox.showwarning(
             title="ERROR",
             message="You must have at least one state and one alphabet character"
+        )
+        return
+    
+    if len(states) > 10 or len(alphabet) > 10:
+        messagebox.showwarning(
+            title="ERROR",
+            message="Please limit your amount of states and/or alphabet to only 10 each"
         )
         return
 
@@ -140,12 +147,12 @@ def generateDFA():
 # Initializes main application window
 window = tkinter.Tk()
 window.title("DFA Generator")
-window.geometry("600x800")
+window.geometry("700x800")
 window.configure(bg = MAINBACKGROUND)
 
 # Initialize Main Frame
 frame = createStandardFrame(window)
-frame.pack(fill="both", expand=True)
+frame.pack(fill="both", expand=True, padx = 50, pady = 20)
 frame.columnconfigure(0, weight=1)
 
 # Initialize Header
@@ -162,7 +169,8 @@ titleLabel = tkinter.Label(
 
 headerFrame.grid(row = 0, column = 0)
 titleLabel.grid(row = 0, column = 0)
-subtitleLabel = createStandardLabel(headerFrame, "Separate characters with commas (,)", 1, 0)
+subtitleLabel = createStandardLabel(headerFrame, "Separate characters with commas (,)", 1, 0, sticky = "ew")
+subtitleLabel2 = createStandardLabel(headerFrame, "Limit the amount of states and alphabet characters to 10", 2, 0)
 
 # Initialize Formal Inputs Section
 inputsFrame = createStandardFrame(frame)
@@ -170,19 +178,19 @@ inputsFrame = createStandardFrame(frame)
 inputsFrame.grid(row = 1, column = 0, sticky = "ew")
 inputsFrame.columnconfigure(1, weight = 1)
 
-statesLabel = createStandardLabel(inputsFrame, "Input List of States", 0, 0)
+statesLabel = createStandardLabel(inputsFrame, "Input List of States (Q)", 0, 0)
 statesInput = createStandardEntry(inputsFrame, 0, 1)
 
-alphabetLabel = createStandardLabel(inputsFrame, "Input Alphabet", 1, 0)
+alphabetLabel = createStandardLabel(inputsFrame, "Input Alphabet (Σ)", 1, 0)
 alphabetInput = createStandardEntry(inputsFrame, 1, 1)
 
-startStateLabel = createStandardLabel(inputsFrame, "Input Start State", 2, 0)
+startStateLabel = createStandardLabel(inputsFrame, "Input Start State (q0)", 2, 0)
 startStateInput = createStandardEntry(inputsFrame, 2, 1)
 
-acceptStatesLabel = createStandardLabel(inputsFrame, "Input Accept States", 3, 0)
+acceptStatesLabel = createStandardLabel(inputsFrame, "Input Accept States (F)", 3, 0)
 acceptStatesInput = createStandardEntry(inputsFrame, 3, 1)
 
-transitionTableButton = createStandardButton(frame, "Generate Transition Table", generateTransitionTable, 2, 0)
+transitionTableButton = createStandardButton(frame, "Generate Transition Table (δ)", generateTransitionTable, 2, 0)
 transitionTableFrame = createStandardFrame(frame)
 transitionTableFrame.grid(row = 4, column = 0)
 
