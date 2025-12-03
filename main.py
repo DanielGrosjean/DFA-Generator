@@ -1,4 +1,6 @@
 import tkinter
+from tkinter import ttk
+from tkinter import messagebox
 
 # Constant variables
 MAINBACKGROUND = "#2C2D2D"
@@ -13,7 +15,7 @@ def createStandardLabel(parent, text, row, column):
         font = ("Courier New", 10),
         pady = 10
     )
-    label.grid(row = row, column = column, sticky = "w")
+    label.grid(row = row, column = column, sticky = "e")
     return label
 
 def createStandardEntry(parent, row, column):
@@ -28,10 +30,76 @@ def createStandardFrame(parent):
     )
     return frame
 
+def createStandardButton(parent, text, command, row, column):
+    button = tkinter.Button(
+        parent,
+        text = text,
+        fg = MAINBACKGROUND,
+        bg = "white",
+        font = ("Courier New", 10),
+        command = command,
+    )
+    button.grid(row = row, column = column, padx = 20, pady = 10)
+    return button
+
+def generateTransitionTable():
+    # Clear previous table
+    for widget in transitionTableFrame.winfo_children():
+        widget.destroy()
+
+    # Get input values
+    states = [s.strip() for s in statesInput.get().split(",") if s.strip()]
+    alphabet = [a.strip() for a in alphabetInput.get().split(",") if a.strip()]
+
+    if not states or not alphabet:
+        messagebox.showwarning(
+            title="ERROR",
+            message="You must have at least one state and one alphabet character"
+        )
+        return
+
+    # Top-left empty cell
+    tkinter.Label(
+        transitionTableFrame,
+        text="",
+        bg=MAINBACKGROUND
+    ).grid(row=0, column=0, padx=5, pady=5)
+
+    # Alphabet headers
+    for col, symbol in enumerate(alphabet, start=1):
+        header = tkinter.Label(
+            transitionTableFrame,
+            text=symbol,
+            bg=MAINBACKGROUND,
+            fg="white",
+            font=("Courier New", 10, "bold")
+        )
+        header.grid(row=0, column=col, padx=5, pady=5)
+
+    # State labels + Entry boxes
+    for row, state in enumerate(states, start=1):
+
+        # State label on the left
+        label = tkinter.Label(
+            transitionTableFrame,
+            text=state,
+            bg=MAINBACKGROUND,
+            fg="white",
+            font=("Courier New", 10, "bold")
+        )
+        label.grid(row=row, column=0, padx=5, pady=5)
+
+        # Transition entries
+        for col, symbol in enumerate(alphabet, start=1):
+            entry = tkinter.Entry(transitionTableFrame, width=8)
+            entry.grid(row=row, column=col, padx=5, pady=5)
+
+
+
 # Initializes main application window
 window = tkinter.Tk()
 window.title("DFA Generator")
-window.geometry("600x400")
+window.geometry("600x800")
 window.configure(bg = MAINBACKGROUND)
 
 # Initialize Main Frame
@@ -72,5 +140,11 @@ startStateInput = createStandardEntry(inputsFrame, 2, 1)
 
 acceptStatesLabel = createStandardLabel(inputsFrame, "Input Accept States", 3, 0)
 acceptStatesEntry = createStandardEntry(inputsFrame, 3, 1)
+
+transitionTableButton = createStandardButton(frame, "Generate Transition Table", generateTransitionTable, 2, 0)
+transitionTableFrame = createStandardFrame(frame)
+transitionTableFrame.grid(row = 4, column = 0)
+
+transitionTableButton = createStandardButton(frame, "Generate DFA", generateTransitionTable, 3, 0)
 
 window.mainloop()
