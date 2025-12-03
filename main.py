@@ -1,5 +1,4 @@
 import tkinter
-from tkinter import ttk
 from tkinter import messagebox
 from graphviz import Digraph
 
@@ -7,7 +6,8 @@ from graphviz import Digraph
 MAINBACKGROUND = "#2C2D2D"
 transitionEntries = {}
 
-# Helper Functions
+# ------------------------- GUI HELPER FUNCTIONS -------------------------
+
 def createStandardLabel(parent, text, row, column, sticky = "e"):
     label = tkinter.Label(
         parent,
@@ -44,6 +44,8 @@ def createStandardButton(parent, text, command, row, column):
     button.grid(row = row, column = column, padx = 20, pady = 10)
     return button
 
+# ------------------------- DFA HELPER FUNCTIONS -------------------------
+
 def generateTransitionTable():
     # Clear previous table
     for widget in transitionTableFrame.winfo_children():
@@ -53,6 +55,7 @@ def generateTransitionTable():
     states = [s.strip() for s in statesInput.get().split(",") if s.strip()]
     alphabet = [a.strip() for a in alphabetInput.get().split(",") if a.strip()]
 
+    # Validate inputs
     if not states or not alphabet:
         messagebox.showwarning(
             title="ERROR",
@@ -78,7 +81,7 @@ def generateTransitionTable():
         )
         header.grid(row=0, column=col, padx=5, pady=5)
 
-    # State labels + Entry boxes
+    # State labels and Entry boxes
     for row, state in enumerate(states, start=1):
 
         # State label on the left
@@ -101,13 +104,40 @@ def generateTransitionTable():
 def getTransitions():
     transitions = {}
 
+    # Create all transition pairs from transition table
     for (state, symbol), entry in transitionEntries.items():
         value = entry.get().strip()
         transitions[(state, symbol)] = value
 
     return transitions
 
+def generateStateDiagram(states, startState, acceptStates, transitions):
+    # Initialize format of state diagram
+    dot = Digraph(format="png")
+    dot.attr(rankdir="LR")
+
+    # Draw States
+    for state in states:
+        if state in acceptStates:
+            dot.node(state, shape="doublecircle")
+        else:
+            dot.node(state, shape="circle")
+
+    # Draw Start Arrow
+    dot.node("", shape="none")
+    dot.edge("", startState)
+
+    # Draw Transitions
+    for (state, symbol), next_state in transitions.items():
+        dot.edge(state, next_state, label=symbol)
+
+    # Save and show state diagram
+    dot.render("dfa", view=True)
+
+# ------------------------- MAIN FUNCTION -------------------------
+
 def generateDFA():
+    # Verify transition table is completed
     if not transitionEntries:
         messagebox.showwarning(
             title="ERROR",
@@ -115,12 +145,13 @@ def generateDFA():
         )
         return
 
+    # Retrieve inputs
     states = [s.strip() for s in statesInput.get().split(",") if s.strip()]
-    alphabet = [a.strip() for a in alphabetInput.get().split(",") if a.strip()]
     startState = startStateInput.get()
     acceptStates = [f.strip() for f in acceptStatesInput.get().split(",") if f.strip()]
     transitions = getTransitions()
 
+    # Verify start state
     if startState not in states:
         messagebox.showwarning(
             title="ERROR",
@@ -128,6 +159,7 @@ def generateDFA():
         )
         return
     
+    # Verify accept states
     for state in acceptStates:
         if state not in states:
             messagebox.showwarning(
@@ -136,6 +168,7 @@ def generateDFA():
             )
             return
         
+    # Verify DFA status    
     for _ , val in transitions.items():
         if val == "" or val not in states:
             messagebox.showwarning(
@@ -144,22 +177,7 @@ def generateDFA():
             )
             return
 
-    dot = Digraph(format="png")
-    dot.attr(rankdir="LR")
-
-    for state in states:
-        if state in acceptStates:
-            dot.node(state, shape="doublecircle")
-        else:
-            dot.node(state, shape="circle")
-
-    dot.node("", shape="none")  # invisible node
-    dot.edge("", startState)
-
-    for (state, symbol), next_state in transitions.items():
-        dot.edge(state, next_state, label=symbol)
-
-    dot.render("dfa", view=True)
+    generateStateDiagram(states, startState, acceptStates, transitions)
 
 # Initializes main application window
 window = tkinter.Tk()
@@ -188,9 +206,8 @@ headerFrame.grid(row = 0, column = 0)
 titleLabel.grid(row = 0, column = 0)
 subtitleLabel = createStandardLabel(headerFrame, "Separate characters with commas (,)", 1, 0, sticky = "ew")
 
-# Initialize Formal Inputs Section
+# Initialize visual Layout
 inputsFrame = createStandardFrame(frame)
-
 inputsFrame.grid(row = 1, column = 0, sticky = "ew")
 inputsFrame.columnconfigure(1, weight = 1)
 
@@ -212,4 +229,5 @@ transitionTableFrame.grid(row = 4, column = 0)
 
 transitionTableButton = createStandardButton(frame, "Generate DFA", generateDFA, 3, 0)
 
+# Main Loop to continously update GUI
 window.mainloop()
