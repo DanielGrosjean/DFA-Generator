@@ -2,8 +2,9 @@ import tkinter
 from tkinter import ttk
 from tkinter import messagebox
 
-# Constant variables
-MAINBACKGROUND = "#2C2D2D"
+# Global Variables
+MAINBACKGROUND = "#13265C"
+transitionEntries = {}
 
 # Helper Functions
 def createStandardLabel(parent, text, row, column):
@@ -94,6 +95,46 @@ def generateTransitionTable():
             entry = tkinter.Entry(transitionTableFrame, width=8)
             entry.grid(row=row, column=col, padx=5, pady=5)
 
+            transitionEntries[(state, symbol)] = entry
+
+def getTransitions():
+    transitions = {}
+
+    for (state, symbol), entry in transitionEntries.items():
+        value = entry.get().strip()
+        transitions[(state, symbol)] = value
+
+    return transitions
+
+def generateDFA():
+    states = [s.strip() for s in statesInput.get().split(",") if s.strip()]
+    alphabet = [a.strip() for a in alphabetInput.get().split(",") if a.strip()]
+    startState = startStateInput.get()
+    acceptStates = [f.strip() for f in acceptStatesInput.get().split(",") if f.strip()]
+    transitions = getTransitions()
+
+    if startState not in states:
+        messagebox.showwarning(
+            title="ERROR",
+            message="The start state must be in your list of states"
+        )
+        return
+    
+    for state in acceptStates:
+        if state not in states:
+            messagebox.showwarning(
+                title="ERROR",
+                message="All of the accept states must be in your list of states"
+            )
+            return
+        
+    for key, val in transitions.items():
+        if val == "" or val not in alphabet:
+            messagebox.showwarning(
+                title="ERROR",
+                message="All of the entries in the transition table must be filled and be valid"
+            )
+            return
 
 
 # Initializes main application window
@@ -139,12 +180,12 @@ startStateLabel = createStandardLabel(inputsFrame, "Input Start State", 2, 0)
 startStateInput = createStandardEntry(inputsFrame, 2, 1)
 
 acceptStatesLabel = createStandardLabel(inputsFrame, "Input Accept States", 3, 0)
-acceptStatesEntry = createStandardEntry(inputsFrame, 3, 1)
+acceptStatesInput = createStandardEntry(inputsFrame, 3, 1)
 
 transitionTableButton = createStandardButton(frame, "Generate Transition Table", generateTransitionTable, 2, 0)
 transitionTableFrame = createStandardFrame(frame)
 transitionTableFrame.grid(row = 4, column = 0)
 
-transitionTableButton = createStandardButton(frame, "Generate DFA", generateTransitionTable, 3, 0)
+transitionTableButton = createStandardButton(frame, "Generate DFA", generateDFA, 3, 0)
 
 window.mainloop()
