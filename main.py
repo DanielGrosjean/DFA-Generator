@@ -134,7 +134,7 @@ def generateStateDiagram(states, startState, acceptStates, transitions):
     # Save and show state diagram
     dot.render("dfa", view=True)
 
-# ------------------------- MAIN FUNCTION -------------------------
+# ----------------------------- MAIN FUNCTION -----------------------------
 
 def generateDFA():
     # Verify transition table is completed
@@ -178,6 +178,8 @@ def generateDFA():
             return
 
     generateStateDiagram(states, startState, acceptStates, transitions)
+
+# ---------------------------------- GUI -----------------------------------
 
 # Initializes main application window
 window = tkinter.Tk()
