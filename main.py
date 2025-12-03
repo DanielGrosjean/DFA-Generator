@@ -114,6 +114,13 @@ def getTransitions():
     return transitions
 
 def generateDFA():
+    if not transitionEntries:
+        messagebox.showwarning(
+            title="ERROR",
+            message="You must generate and fill in the transition table, first"
+        )
+        return
+
     states = [s.strip() for s in statesInput.get().split(",") if s.strip()]
     alphabet = [a.strip() for a in alphabetInput.get().split(",") if a.strip()]
     startState = startStateInput.get()
